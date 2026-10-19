@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -51,8 +52,31 @@ def main() -> None:
     accuracy = float(np.trace(matrix) / max(matrix.sum(), 1))
     rows = []
     for index, name in enumerate(classes):
-        total = matrix[index].sum()
-        rows.append({"class_name": name, "images": int(total), "correct": int(matrix[index, index]), "accuracy": float(matrix[index, index] / max(total, 1))})
+        actual_count = matrix[index].sum()
+        predicted_count = matrix[:, index].sum()
+        true_positive = matrix[index, index]
+        recall = float(true_positive / max(actual_count, 1))
+        precision = float(true_positive / max(predicted_count, 1))
+        f1 = 2 * precision * recall / max(precision + recall, 1e-12)
+        rows.append(
+            {
+                "class_name": name,
+                "images": int(actual_count),
+                "correct": int(true_positive),
+                "precision": precision,
+                "recall": recall,
+                "f1": f1,
+            }
+        )
+    metrics = {
+        "accuracy": accuracy,
+        "macro_precision": float(np.mean([row["precision"] for row in rows])),
+        "macro_recall": float(np.mean([row["recall"] for row in rows])),
+        "macro_f1": float(np.mean([row["f1"] for row in rows])),
+        "test_images": int(matrix.sum()),
+        "classes": classes,
+    }
+    (output_dir / "metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
     pd.DataFrame(rows).to_csv(output_dir / "class_metrics.csv", index=False, encoding="utf-8-sig")
     pd.DataFrame(matrix, index=classes, columns=classes).to_csv(output_dir / "confusion_matrix.csv", encoding="utf-8-sig")
     figure, axis = plt.subplots(figsize=(max(6, len(classes) * 0.6), max(5, len(classes) * 0.5)))

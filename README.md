@@ -24,7 +24,7 @@ PowerShell 中直接运行 `python` 会优先加载用户级 CPU 版 PyTorch；�
 
 ```powershell
 python -m pip install -r requirements.txt
-python -m pip install --index-url https://download.pytorch.org/whl/cu128 -r requirements-cu128.txt
+python -m pip install --extra-index-url https://download.pytorch.org/whl/cu128 -r requirements-cu128.txt
 ```
 
 在当前机器上不需要重复安装，直接使用上面的 Anaconda 环境即可。
