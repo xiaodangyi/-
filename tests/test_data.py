@@ -45,11 +45,14 @@ class ImageDataTests(unittest.TestCase):
         self.assertFalse(bool(broken["valid"]))
         self.assertTrue(bool(broken["error"]))
 
-    def test_same_bytes_with_conflicting_labels_stop_split(self) -> None:
+    def test_same_bytes_with_conflicting_labels_are_excluded(self) -> None:
         shutil.copy2(self.root / "daisy" / "0.png", self.root / "rose" / "wrong-label.png")
         records = scan_images(self.root)
-        with self.assertRaisesRegex(ValueError, "类别标签不同"):
-            split_records(records)
+        splits = split_records(records)
+        conflict_hashes = set(records.loc[records["label_conflict"], "sha256"])
+        selected_hashes = set().union(*(set(split["sha256"]) for split in splits.values()))
+        self.assertTrue(conflict_hashes)
+        self.assertFalse(conflict_hashes & selected_hashes)
 
     def test_each_class_needs_three_distinct_images(self) -> None:
         (self.root / "rose" / "2.png").unlink()

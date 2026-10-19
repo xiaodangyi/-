@@ -37,6 +37,7 @@ def main() -> None:
         .agg(
             images=("path", "count"),
             valid_images=("valid", "sum"),
+            conflicting_label_images=("label_conflict", "sum"),
             average_width=("width", "mean"),
             average_height=("height", "mean"),
         )
@@ -59,7 +60,11 @@ def main() -> None:
     figure.tight_layout()
     figure.savefig(output_dir / "dataset_overview.png", dpi=150)
     plt.close(figure)
-    print(f"扫描完成：{len(records)} 张图片，{summary['class_name'].nunique()} 个类别，重复内容图片 {duplicate_count} 张")
+    conflict_count = int(records["label_conflict"].sum())
+    print(
+        f"扫描完成：{len(records)} 张图片，{summary['class_name'].nunique()} 个类别，"
+        f"重复内容图片 {duplicate_count} 张，跨类别标签冲突图片 {conflict_count} 张"
+    )
     print(summary.to_string(index=False))
 
 

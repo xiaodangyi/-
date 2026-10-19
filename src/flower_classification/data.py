@@ -43,6 +43,7 @@ def scan_images(data_dir: str | Path) -> pd.DataFrame:
                 "mode": "",
                 "sha256": "",
                 "valid": False,
+                "label_conflict": False,
                 "error": "",
             }
             try:
@@ -55,8 +56,14 @@ def scan_images(data_dir: str | Path) -> pd.DataFrame:
                 record["error"] = str(exc)
             records.append(record)
 
-    columns = ["path", "class_name", "width", "height", "mode", "sha256", "valid", "error"]
-    return pd.DataFrame(records, columns=columns)
+    columns = ["path", "class_name", "width", "height", "mode", "sha256", "valid", "label_conflict", "error"]
+    result = pd.DataFrame(records, columns=columns)
+    valid = result[result["valid"].astype(bool)]
+    if not valid.empty:
+        label_counts = valid.groupby("sha256")["class_name"].nunique()
+        conflict_hashes = set(label_counts[label_counts > 1].index)
+        result["label_conflict"] = result["sha256"].isin(conflict_hashes)
+    return result
 
 
 def _split_counts(sample_count: int, ratios: tuple[float, float, float]) -> tuple[int, int, int]:
@@ -83,13 +90,10 @@ def split_records(
     if "sha256" not in records.columns:
         raise ValueError("图片清单缺少 sha256 列，请重新扫描数据集")
     valid = records[records["valid"].astype(bool)].copy()
+    if "label_conflict" in valid.columns:
+        valid = valid[~valid["label_conflict"].astype(bool)]
     if valid.empty:
         raise ValueError("没有找到可用图片")
-
-    duplicate_labels = valid.groupby("sha256")["class_name"].nunique()
-    conflicting = duplicate_labels[duplicate_labels > 1]
-    if not conflicting.empty:
-        raise ValueError(f"发现内容相同但类别标签不同的图片，无法安全划分：{len(conflicting)} 组")
 
     groups_by_class: dict[str, list[list[int]]] = {}
     for class_name, class_records in valid.groupby("class_name", sort=True):
