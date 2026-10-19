@@ -20,7 +20,7 @@ $python = "C:\Users\LENOVO\Documents\Codex\2026-10-18\gen\anaconda-envs\ai-cuda\
 已验证的关键版本：Python 3.9.25、PyTorch 2.7.1+cu128、NumPy 1.26.4、Pandas 2.3.3、Matplotlib 3.9.2，CUDA 可用并识别 NVIDIA GeForce RTX 5070 Laptop GPU。
 PowerShell 中直接运行 `python` 会优先加载用户级 CPU 版 PyTorch；使用环境解释器并添加 `-s` 可以让 Python 忽略用户级包，确保导入 Anaconda 环境中的 CUDA 版本。
 
-通用依赖见 `requirements.txt`。如果需要在另一台已安装 CUDA 12.8 的机器上安装同一 PyTorch 构建，可使用 `requirements-cu128.txt`：
+通用依赖见 `requirements.txt`。如果需要在另一台具备兼容 NVIDIA 驱动的机器上安装同一 PyTorch 构建，可使用 `requirements-cu128.txt`。PyTorch 安装包自带所需 CUDA 运行库，普通训练通常不需要另外安装完整 CUDA Toolkit：
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -73,6 +73,21 @@ $python = "C:\Users\LENOVO\Documents\Codex\2026-10-18\gen\anaconda-envs\ai-cuda\
 ```
 
 如果暂时没有 GPU，可以给训练命令增加 `--device cpu`。训练脚本会自动保存最佳模型、训练日志、类别名称和曲线图。
+每隔 10 个批次会显示一次进度，可通过 `--log-every` 调整。输出目录非空时会停止，防止覆盖已有结果。
+
+### 在可见终端中训练
+
+在项目根目录打开 PowerShell，然后运行：
+
+```powershell
+powershell.exe -NoLogo -NoProfile -NoExit -File .\scripts\start_training.ps1
+```
+
+窗口标题包含 `LIVE Training`，会显示设备、当前轮次、批次、损失和准确率。每次默认生成新的实验目录，完整终端日志保存在 `outputs/terminal-logs`。此启动脚本使用当前机器的 Anaconda 路径，换机器时用 `-Python` 指定解释器。
+
+在实际训练窗口按 **Ctrl+C** 可中断训练，已写入的最佳模型和完整轮次日志会保留；尚未完成的当前轮次不会保存，当前版本不支持断点续训。曲线图仅在全部轮次完成后生成。
+
+`scripts/view_training.ps1` 是另一个只读日志查看工具，它只展示已有 `history.csv`；在查看窗口按 Ctrl+C 只会结束查看。请根据窗口标题区分。
 
 ## 项目步骤说明
 
