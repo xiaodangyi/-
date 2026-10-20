@@ -23,6 +23,8 @@ data/downloads/*
 data/demo_images/*
 !data/demo_images/.gitkeep
 data/staging/
+data/web-*/
+data/processed-enriched-*/
 outputs/*
 !outputs/.gitkeep
 *.pt
