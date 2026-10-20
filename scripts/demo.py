@@ -1,4 +1,4 @@
-"""展示已有主要结果，并交互识别用户选择的图片。"""
+"""展示运行环境、已有主要结果，并交互识别用户选择的图片。"""
 
 from __future__ import annotations
 
@@ -10,6 +10,38 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def show_environment() -> None:
+    """读取当前实际环境，缓存保持在项目目录中。"""
+    os.environ["MPLCONFIGDIR"] = str(ROOT / ".cache/matplotlib")
+    os.environ["TORCH_HOME"] = str(ROOT / ".cache/torch")
+    print("\n正在检查运行环境……", flush=True)
+    import matplotlib
+    import numpy
+    import pandas
+    import PIL
+    import torch
+
+    environment_type = "Conda" if (Path(sys.prefix) / "conda-meta").is_dir() else "Python"
+    print(f"环境类型：{environment_type}")
+    print(f"环境路径：{sys.prefix}")
+    print(f"Python：{sys.version.split()[0]}")
+    print(f"PyTorch：{torch.__version__}")
+    print(f"NumPy：{numpy.__version__}")
+    print(f"Pandas：{pandas.__version__}")
+    print(f"Matplotlib：{matplotlib.__version__}")
+    print(f"Pillow：{PIL.__version__}")
+    cuda_available = torch.cuda.is_available()
+    print(f"PyTorch 的 CUDA 运行库：{torch.version.cuda or '无'}")
+    print(f"CUDA 可用：{cuda_available}")
+    print(f"GPU：{torch.cuda.get_device_name(0) if cuda_available else '当前使用 CPU'}")
+    try:
+        git = subprocess.run(["git", "--version"], capture_output=True, text=True)
+        print(f"Git：{git.stdout.strip() if git.returncode == 0 else '版本查询失败'}")
+    except OSError:
+        print("Git：未在当前 PATH 中找到")
+    print(flush=True)
 
 
 def preview(path: Path) -> None:
@@ -42,11 +74,15 @@ def predict(path_text: str, show_preview: bool) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description="花卉分类验收演示")
     parser.add_argument("--image", help="直接识别指定图片")
+    parser.add_argument("--environment-only", action="store_true", help="只展示实际运行环境")
     parser.add_argument("--results-only", action="store_true", help="只展示已完成实验的结果")
     parser.add_argument("--no-preview", action="store_true", help="不打开图片窗口")
     args = parser.parse_args()
 
     print("花卉分类演示：雏菊、蒲公英、玫瑰、向日葵、郁金香", flush=True)
+    show_environment()
+    if args.environment_only:
+        return 0
     print("已完成实验的主要结果（2026-10-20）：")
     with (ROOT / "docs/final-evaluation-20261020.csv").open(encoding="utf-8-sig", newline="") as source:
         labels = {"original_test": "原测试集", "external_test": "独立网络检验"}
