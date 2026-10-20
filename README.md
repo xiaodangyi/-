@@ -128,6 +128,7 @@ powershell.exe -NoLogo -NoProfile -NoExit -File .\scripts\start_training.ps1
 
 项目说明、开发步骤、个人感悟草稿和录屏脚本见 `docs/`。
 验收视频的完整 PowerShell 指令、外部图片识别方法、模型效果分析和改进顺序见 [录屏操作指南](docs/录屏脚本.md)。外部演示图片放在 `data/demo_images`，该目录中的图片默认不提交到 Git，也不会自动加入训练。
+按录制顺序排列的操作、完整命令与逐段口播见 [验收演示逐字稿](docs/验收演示逐字稿.md)，可直接照着这一份试录。
 
 2026-10-20 的受控改进实验见 [改进实验记录](docs/改进实验记录.md)，三批固定参数计划位于 `configs/ablation-20261020.json`、`configs/combinations-20261020.json`、`configs/enriched-20261020.json`。`train.py` 支持 `--augmentation crop-color`、`--label-smoothing`、`--weight-decay` 和可选的 `--patience`；默认值保持原有基线设置。可运行 `powershell.exe -NoProfile -NoExit -File .\scripts\start_experiments.ps1` 在可见窗口执行计划；已完成的输出不会覆盖。新增图片的来源、许可、去重、人工检查和复现方法见 [来源说明](data_provenance/README.md)。
 
