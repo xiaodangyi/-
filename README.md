@@ -8,6 +8,31 @@
 4. 完成训练、验证、测试、混淆矩阵和单张图片预测。
 5. 使用 Git 保留数据分析、模型、训练和文档的开发历史。
 
+## 当前模型与快速识别
+
+2026-10-20 已完成六组受控改进实验，每组 30 轮，并从网上下载、检查花卉图片：新增 78 张训练图，另留 100 张独立网络检验图。按验证集选定“增强＋标签平滑＋补图”模型，原基线权重保留。
+
+| 集合 | 原基线 | 按验证集选定的模型 |
+| --- | --- | --- |
+| 验证集，552 张 | 81.34% | 85.33% |
+| 原测试集，554 张 | 84.48% | 87.36% |
+| 独立网络检验，100 张 | **85.00%** | **81.00%** |
+
+原数据集成绩提高，但网络图片的泛化没有改善，郁金香识别出现回退。以上为同一种子、小样本结果，不能承诺随机网络图片的准确率。完整结果和局限见 [改进实验记录](docs/改进实验记录.md)。默认预测使用 `configs/selected-model.json` 中事先按验证集固定的模型，没有依据网络检验重新选型。
+
+在 PowerShell 中运行，把图片路径换成自己保存到 E 盘的真实图片：
+
+```powershell
+Set-Location -LiteralPath 'E:\新建文件夹 (8)'
+$python = 'C:\Users\LENOVO\Documents\Codex\2026-10-18\gen\anaconda-envs\ai-cuda\python.exe'
+& $python -s scripts/predict.py --image 'E:\新建文件夹 (8)\data\demo_images\rose01.jpg' --device cuda
+
+# 用原模型对照同一张图
+& $python -s scripts/predict.py --checkpoint outputs/experiment-002/best.pt --image 'E:\新建文件夹 (8)\data\demo_images\rose01.jpg' --device cuda
+```
+
+这五类是雏菊、蒲公英、玫瑰、向日葵、郁金香。模型不会自动学习输入图片；其他类别也会被分到五类之一。模型权重与数据仅在当前电脑保留，不随 Git 下载。
+
 ## 环境
 
 本项目使用已经配置好的 Anaconda CUDA 环境：
@@ -104,6 +129,6 @@ powershell.exe -NoLogo -NoProfile -NoExit -File .\scripts\start_training.ps1
 项目说明、开发步骤、个人感悟草稿和录屏脚本见 `docs/`。
 验收视频的完整 PowerShell 指令、外部图片识别方法、模型效果分析和改进顺序见 [录屏操作指南](docs/录屏脚本.md)。外部演示图片放在 `data/demo_images`，该目录中的图片默认不提交到 Git，也不会自动加入训练。
 
-2026-10-20 的受控改进实验见 [改进实验记录](docs/改进实验记录.md)，固定参数计划位于 `configs/ablation-20261020.json`。`train.py` 支持 `--augmentation crop-color`、`--label-smoothing`、`--weight-decay` 和可选的 `--patience`；默认值保持原有基线设置。可运行 `powershell.exe -NoProfile -NoExit -File .\scripts\start_experiments.ps1` 在可见窗口依次执行计划。
+2026-10-20 的受控改进实验见 [改进实验记录](docs/改进实验记录.md)，三批固定参数计划位于 `configs/ablation-20261020.json`、`configs/combinations-20261020.json`、`configs/enriched-20261020.json`。`train.py` 支持 `--augmentation crop-color`、`--label-smoothing`、`--weight-decay` 和可选的 `--patience`；默认值保持原有基线设置。可运行 `powershell.exe -NoProfile -NoExit -File .\scripts\start_experiments.ps1` 在可见窗口执行计划；已完成的输出不会覆盖。新增图片的来源、许可、去重、人工检查和复现方法见 [来源说明](data_provenance/README.md)。
 
 数据集、模型权重、训练输出和个人文件默认不提交到 Git；项目代码、依赖说明、实验配置和分析结果说明会持续提交到远程仓库。

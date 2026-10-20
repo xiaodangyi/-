@@ -1,0 +1,22 @@
+{
+  "selection_unchanged": true,
+  "checkpoint_sha256": "04db7e75bbb872a0e0e77898ebbada2e8d1527fc4c059009279f0e8c7845a26e",
+  "registry_sha256": "54de059874957fa5edc2f763dd1b17ffffa9c36dceea461c83b77f448fc2be94",
+  "external_manifest_sha256": "8f32bf96390b25c0e4a834fc6a7768f3df3764bb18ef5ad8e7a21d5c3bffa517",
+  "source_sha256": {
+    "outputs/improvement-20261020/baseline-validation/metrics.json": "3ae3abecf434170acd1c5905d4a8c5e71307c1ae7c750b2c1311d50a19608462",
+    "outputs/improvement-20261020/baseline-validation/confusion_matrix.csv": "28003f5b901e022d88de7b2ae8bb46164cf373ed0978e10dc67705e6209fb01a",
+    "outputs/experiment-002/evaluation/metrics.json": "5351513679cdfb356282b8b8ed46b4d4d7c3ca24b0e04b93b2a27fe681ba87c7",
+    "outputs/experiment-002/evaluation/confusion_matrix.csv": "0707406192c3c3f2e13dfe3c03d673a7f548c6ed85a44082dc977becd2a5026c",
+    "outputs/improvement-20261020/final-evaluation/selected-original-test/metrics.json": "10bd4fe4a6aadae117e58a088a94d1e655f8b16425121aa308695326e5104291",
+    "outputs/improvement-20261020/final-evaluation/selected-original-test/confusion_matrix.csv": "3063be6031bb80831da2278029290f71002f7d5e82edd2aa6b8e0532e4865572",
+    "outputs/improvement-20261020/final-evaluation/selected-original-test/predictions.csv": "e32fd9ebd645508f4253e39cb44c9fbebc5893f6a4bc8da43a42b4164841b4d2",
+    "outputs/improvement-20261020/final-evaluation/baseline-external/metrics.json": "eff77217da333d38e532fe0cb51135a4b13c2d3afdf4818a574c6f6844472fe2",
+    "outputs/improvement-20261020/final-evaluation/baseline-external/confusion_matrix.csv": "9c3dd2ec853a038c89101bab03d1e2f222afbb2ecc72511d3c627e5f679c845b",
+    "outputs/improvement-20261020/final-evaluation/baseline-external/predictions.csv": "4d5098ea1ab48bb7e986e47305920b5d9abb6df4ef9e018183030a32696ed28a",
+    "outputs/improvement-20261020/final-evaluation/selected-external/metrics.json": "4da076b3907f4b3b74ca7bc90dea03f5f18ff753187f029140b098f1a20f7aac",
+    "outputs/improvement-20261020/final-evaluation/selected-external/confusion_matrix.csv": "2c460d377eeb07793c75b32bf9945ebe5aaa6e79b35ef026cdd94126fffe8ebb",
+    "outputs/improvement-20261020/final-evaluation/selected-external/predictions.csv": "d5bcd9229404fa3c86a64a1474e7291ee9f76590116004f23111bfbc3c1df95a"
+  },
+  "limitation": "单种子、小规模作者隔离网络检验；已查看的检验集不能继续用于选型。"
+}
