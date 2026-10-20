@@ -20,6 +20,8 @@ data/processed/*
 !data/processed/.gitkeep
 data/downloads/*
 !data/downloads/.gitkeep
+data/demo_images/*
+!data/demo_images/.gitkeep
 data/staging/
 outputs/*
 !outputs/.gitkeep

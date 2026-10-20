@@ -102,5 +102,6 @@ powershell.exe -NoLogo -NoProfile -NoExit -File .\scripts\start_training.ps1
 参考 `dm9717/flower-classification` 用于了解数据增强、训练验证循环和混淆矩阵等实验组织方式；具体阅读记录见 `docs/参考项目研究.md`。本项目重新设计数据清单、数据集读取、网络结构、训练循环和评估流程，不复制参考项目代码。
 
 项目说明、开发步骤、个人感悟草稿和录屏脚本见 `docs/`。
+验收视频的完整 PowerShell 指令、外部图片识别方法、模型效果分析和改进顺序见 [录屏操作指南](docs/录屏脚本.md)。外部演示图片放在 `data/demo_images`，该目录中的图片默认不提交到 Git，也不会自动加入训练。
 
 数据集、模型权重、训练输出和个人文件默认不提交到 Git；项目代码、依赖说明、实验配置和分析结果说明会持续提交到远程仓库。
