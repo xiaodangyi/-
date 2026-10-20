@@ -13,16 +13,16 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from flower_classification.data import image_to_tensor
 from flower_classification.model import build_model
-from flower_classification.runtime import select_device
+from flower_classification.runtime import select_device, resolve_checkpoint
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="预测单张花卉图片")
-    parser.add_argument("--checkpoint", required=True)
+    parser.add_argument("--checkpoint", default=None, help="不指定时使用 configs/selected-model.json 中的正式模型")
     parser.add_argument("--image", required=True)
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
     args = parser.parse_args()
-    checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
+    checkpoint = torch.load(resolve_checkpoint(args.checkpoint), map_location="cpu", weights_only=True)
     classes = checkpoint["classes"]
     device = select_device(args.device)
     model = build_model(len(classes)).to(device)

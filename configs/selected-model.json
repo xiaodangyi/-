@@ -1,0 +1,23 @@
+{
+  "model_name": "augmentation-smoothing-enriched",
+  "checkpoint": "outputs/improvement-20261020/augmentation-smoothing-enriched/best.pt",
+  "checkpoint_sha256": "04db7e75bbb872a0e0e77898ebbada2e8d1527fc4c059009279f0e8c7845a26e",
+  "selection_basis": "仅按固定原验证集准确率排序，平分时比较宏平均 F1；不读取历史测试或外部检验预测。",
+  "val_accuracy": 0.8532608695652174,
+  "val_macro_f1": 0.8518497054830915,
+  "best_epoch": 24,
+  "seed": 42,
+  "training_images": 2640,
+  "manifest_dir": "data/processed-enriched-20261020",
+  "data_dir": ".",
+  "augmentation": "crop-color",
+  "label_smoothing": 0.1,
+  "weight_decay": 0.0001,
+  "external_test_manifest": "data/processed-enriched-20261020/external_test.csv",
+  "external_test_manifest_sha256": "8f32bf96390b25c0e4a834fc6a7768f3df3764bb18ef5ad8e7a21d5c3bffa517",
+  "plan_sha256": {
+    "ablation-20261020.json": "f28bc693e2318427d460be58a7b4b6728b4d2520ab0816e8209744d21ad66ea5",
+    "combinations-20261020.json": "ff638d89acb376dd4896694b4f571c38f1114d06e5e9042ed60bafee3b8cb67a",
+    "enriched-20261020.json": "e4bc4e03cc6cbfbde797ff2bccfe696d5f71ad09b2db6c37e24dfc54f03c7e86"
+  }
+}

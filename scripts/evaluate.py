@@ -48,11 +48,16 @@ def main() -> None:
     model.load_state_dict(checkpoint["model"])
     model.eval()
     matrix = np.zeros((len(classes), len(classes)), dtype=np.int64)
+    image_predictions = []
+    record_index = 0
     with torch.no_grad():
         for images, labels in loader:
-            predictions = model(images.to(device)).argmax(dim=1).cpu().numpy()
-            for actual, predicted in zip(labels.numpy(), predictions):
+            probabilities = model(images.to(device)).softmax(dim=1)
+            confidences, predictions = probabilities.max(dim=1)
+            for actual, predicted, confidence in zip(labels.numpy(), predictions.cpu().numpy(), confidences.cpu().numpy()):
                 matrix[actual, predicted] += 1
+                image_predictions.append({"path": str(records.iloc[record_index]["path"]), "actual_class": classes[int(actual)], "predicted_class": classes[int(predicted)], "confidence": float(confidence), "correct": bool(actual == predicted)})
+                record_index += 1
     accuracy = float(np.trace(matrix) / max(matrix.sum(), 1))
     rows = []
     for index, name in enumerate(classes):
@@ -82,6 +87,7 @@ def main() -> None:
     (output_dir / "metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
     pd.DataFrame(rows).to_csv(output_dir / "class_metrics.csv", index=False, encoding="utf-8-sig")
     pd.DataFrame(matrix, index=classes, columns=classes).to_csv(output_dir / "confusion_matrix.csv", encoding="utf-8-sig")
+    pd.DataFrame(image_predictions).to_csv(output_dir / "predictions.csv", index=False, encoding="utf-8-sig")
     figure, axis = plt.subplots(figsize=(max(6, len(classes) * 0.6), max(5, len(classes) * 0.5)))
     image = axis.imshow(matrix, cmap="Blues")
     figure.colorbar(image, ax=axis)

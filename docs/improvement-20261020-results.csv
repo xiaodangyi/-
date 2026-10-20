@@ -1,0 +1,8 @@
+﻿name,best_epoch,completed_epochs,train_accuracy_at_best,val_accuracy,val_macro_f1,train_val_gap,checkpoint,augmentation,label_smoothing,weight_decay,training_images
+baseline,30,30,0.9785323965651834,0.8134057971014492,0.8120959590276197,0.1651265994637342,outputs/experiment-002/best.pt,basic,0.0,0.0001,2562
+augmentation,28,30,0.9195940671350508,0.8405797101449275,0.838267494964642,0.07901435699012327,outputs/improvement-20261020/augmentation/best.pt,crop-color,0.0,0.0001,2562
+label-smoothing,30,30,0.9867291178766588,0.8242753623188406,0.8206972716786722,0.16245375555781827,outputs/improvement-20261020/label-smoothing/best.pt,basic,0.1,0.0001,2562
+weight-decay,21,30,0.9227166276346604,0.8188405797101449,0.8180465650538487,0.10387604792451555,outputs/improvement-20261020/weight-decay/best.pt,basic,0.0,0.001,2562
+augmentation-smoothing,28,30,0.9410616705698672,0.8532608695652174,0.8510101944649886,0.08780080100464982,outputs/improvement-20261020/augmentation-smoothing/best.pt,crop-color,0.1,0.0001,2562
+augmentation-smoothing-decay,29,30,0.9340359094457455,0.8460144927536232,0.8441211550567477,0.08802141669212238,outputs/improvement-20261020/augmentation-smoothing-decay/best.pt,crop-color,0.1,0.001,2562
+augmentation-smoothing-enriched,24,30,0.937878787878788,0.8532608695652174,0.8518497054830915,0.08461791831357057,outputs/improvement-20261020/augmentation-smoothing-enriched/best.pt,crop-color,0.1,0.0001,2640
