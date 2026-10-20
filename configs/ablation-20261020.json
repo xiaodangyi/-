@@ -1,0 +1,26 @@
+{
+  "purpose": "固定数据划分、随机种子、轮数和优化器，分别改变一个主要因素；仅按验证集选择方案。",
+  "baseline_checkpoint": "outputs/experiment-002/best.pt",
+  "baseline_validation_accuracy": 0.8134057971014492,
+  "output_root": "outputs/improvement-20261020",
+  "common": {
+    "manifest-dir": "data/processed",
+    "data-dir": "data/raw",
+    "epochs": 30,
+    "batch-size": 32,
+    "image-size": 224,
+    "learning-rate": 0.0003,
+    "seed": 42,
+    "device": "cuda",
+    "log-every": 20,
+    "patience": 0,
+    "augmentation": "basic",
+    "label-smoothing": 0.0,
+    "weight-decay": 0.0001
+  },
+  "experiments": [
+    {"name": "augmentation", "changes": {"augmentation": "crop-color"}},
+    {"name": "label-smoothing", "changes": {"label-smoothing": 0.1}},
+    {"name": "weight-decay", "changes": {"weight-decay": 0.001}}
+  ]
+}

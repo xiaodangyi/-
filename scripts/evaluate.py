@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from flower_classification.data import FlowerDataset, load_manifest
 from flower_classification.model import build_model
+from flower_classification.metrics import classification_metrics
 from flower_classification.plotting import plt
 from flower_classification.runtime import select_device
 
@@ -24,6 +25,8 @@ from flower_classification.runtime import select_device
 def main() -> None:
     parser = argparse.ArgumentParser(description="评估花卉分类模型")
     parser.add_argument("--manifest-dir", default="data/processed")
+    parser.add_argument("--manifest", default=None, help="显式指定独立清单，支持验证集或外部检验集")
+    parser.add_argument("--split", default="test", choices=["val", "test"])
     parser.add_argument("--data-dir", default=None, help="数据清单对应的数据根目录，可用于更换机器后的路径覆盖")
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--output-dir", default="outputs/evaluation")
@@ -34,9 +37,10 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
     classes = checkpoint["classes"]
-    records, test_classes = load_manifest(Path(args.manifest_dir) / "test.csv", args.data_dir)
+    manifest = Path(args.manifest) if args.manifest else Path(args.manifest_dir) / f"{args.split}.csv"
+    records, test_classes = load_manifest(manifest, args.data_dir)
     if test_classes != classes:
-        raise ValueError("测试集和模型保存的类别不一致，请确认使用了同一份数据划分")
+        raise ValueError("评估集和模型保存的类别不一致，请确认使用了正确的数据清单")
     dataset = FlowerDataset(records, classes, checkpoint["image_size"], training=False)
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
     device = select_device(args.device)
@@ -69,12 +73,11 @@ def main() -> None:
             }
         )
     metrics = {
-        "accuracy": accuracy,
-        "macro_precision": float(np.mean([row["precision"] for row in rows])),
-        "macro_recall": float(np.mean([row["recall"] for row in rows])),
-        "macro_f1": float(np.mean([row["f1"] for row in rows])),
+        **classification_metrics(matrix),
         "test_images": int(matrix.sum()),
         "classes": classes,
+        "manifest": str(manifest.resolve()),
+        "checkpoint": str(Path(args.checkpoint).resolve()),
     }
     (output_dir / "metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
     pd.DataFrame(rows).to_csv(output_dir / "class_metrics.csv", index=False, encoding="utf-8-sig")
@@ -90,7 +93,7 @@ def main() -> None:
     figure.tight_layout()
     figure.savefig(output_dir / "confusion_matrix.png", dpi=150)
     plt.close(figure)
-    print(f"测试集准确率：{accuracy:.4f}，样本数：{matrix.sum()}，设备：{device}")
+    print(f"评估准确率：{accuracy:.4f}，宏平均 F1：{metrics['macro_f1']:.4f}，样本数：{matrix.sum()}，设备：{device}")
 
 
 if __name__ == "__main__":

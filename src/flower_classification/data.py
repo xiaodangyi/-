@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import random
 from pathlib import Path
 from typing import Sequence
@@ -183,6 +184,7 @@ class FlowerDataset(Dataset[tuple[torch.Tensor, int]]):
         classes: Sequence[str],
         image_size: int = 224,
         training: bool = False,
+        augmentation: str = "basic",
     ) -> None:
         if image_size < 1:
             raise ValueError("image_size 必须大于 0")
@@ -195,6 +197,9 @@ class FlowerDataset(Dataset[tuple[torch.Tensor, int]]):
             raise ValueError(f"数据中存在未登记的类别：{', '.join(sorted(unknown))}")
         self.image_size = image_size
         self.training = training
+        if augmentation not in {"basic", "crop-color"}:
+            raise ValueError("augmentation 必须为 basic 或 crop-color")
+        self.augmentation = augmentation
 
     def __len__(self) -> int:
         return len(self.records)
@@ -205,6 +210,8 @@ class FlowerDataset(Dataset[tuple[torch.Tensor, int]]):
         if self.training:
             with Image.open(path) as image:
                 image = self._augment(image.convert("RGB"))
+                if self.augmentation == "crop-color":
+                    image = self._crop_and_color(image)
                 tensor = self._to_tensor(image)
         else:
             tensor = image_to_tensor(path, self.image_size)
@@ -232,4 +239,24 @@ class FlowerDataset(Dataset[tuple[torch.Tensor, int]]):
             image = image.rotate(random.uniform(-12, 12), resample=Image.Resampling.BILINEAR)
         if random.random() < 0.3:
             image = ImageEnhance.Brightness(image).enhance(random.uniform(0.8, 1.2))
+        return image
+
+    def _crop_and_color(self, image: Image.Image) -> Image.Image:
+        """温和改变主体比例、对比度和饱和度，减少对固定背景的依赖。"""
+        width, height = image.size
+        for _ in range(10):
+            area = width * height * random.uniform(0.7, 1.0)
+            aspect = math.exp(random.uniform(math.log(0.8), math.log(1.25)))
+            crop_width = int(round(math.sqrt(area * aspect)))
+            crop_height = int(round(math.sqrt(area / aspect)))
+            if 0 < crop_width <= width and 0 < crop_height <= height:
+                left = random.randint(0, width - crop_width)
+                top = random.randint(0, height - crop_height)
+                image = image.crop((left, top, left + crop_width, top + crop_height))
+                break
+        image = ImageOps.fit(image, (self.image_size, self.image_size), method=Image.Resampling.BILINEAR)
+        transforms = [(ImageEnhance.Contrast, 0.8, 1.2), (ImageEnhance.Color, 0.75, 1.25)]
+        random.shuffle(transforms)
+        for enhancer, lower, upper in transforms:
+            image = enhancer(image).enhance(random.uniform(lower, upper))
         return image
