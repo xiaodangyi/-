@@ -5,11 +5,16 @@ import tempfile
 import unittest
 from PIL import Image, ImageDraw
 from scripts.prepare_web_data import image_hashes, is_near
+from scripts.collect_web_images import matches_class
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class ImageFingerprintTests(unittest.TestCase):
+    def test_hibiscus_is_not_a_rose(self):
+        self.assertFalse(matches_class("roses", "Hibiscus rosa-sinensis flower"))
+        self.assertTrue(matches_class("roses", "Rosa 'Mostarella' white shrub rose"))
+
     def test_png_reencoding_keeps_pixel_identity(self):
         with tempfile.TemporaryDirectory(dir=ROOT) as folder:
             first, second = Path(folder) / "first.png", Path(folder) / "second.png"

@@ -1,0 +1,22 @@
+{
+  "purpose": "与 augmentation-smoothing 比较，仅增加经去重和人工复核的 78 张训练图片；原验证样本保持一致，外部检验不参与选型。",
+  "output_root": "outputs/improvement-20261020",
+  "common": {
+    "manifest-dir": "data/processed-enriched-20261020",
+    "data-dir": ".",
+    "epochs": 30,
+    "batch-size": 32,
+    "image-size": 224,
+    "learning-rate": 0.0003,
+    "seed": 42,
+    "device": "cuda",
+    "log-every": 20,
+    "patience": 0,
+    "augmentation": "crop-color",
+    "label-smoothing": 0.1,
+    "weight-decay": 0.0001
+  },
+  "experiments": [
+    {"name": "augmentation-smoothing-enriched", "changes": {}}
+  ]
+}

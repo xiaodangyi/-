@@ -30,6 +30,13 @@ QUERIES = {
 GENERA = {"roses": "Rosa", "tulips": "Tulipa", "daisy": "Leucanthemum", "dandelion": "Taraxacum", "sunflowers": "Helianthus"}
 
 
+def matches_class(class_name: str, text: str) -> bool:
+    """核对植物属名，避免把含有 rosa 的扶桑学名当成玫瑰属。"""
+    if class_name == "roses" and re.search(r"\b(?:Hibiscus|Alcea|Althaea|Adenium|Helleborus)\b", text, re.I):
+        return False
+    return bool(re.search(r"\b" + GENERA[class_name] + r"\b", text, re.I))
+
+
 def plain(value: str) -> str:
     return re.sub(r"\s+", " ", html.unescape(re.sub("<[^>]+>", " ", value))).strip()
 
@@ -57,13 +64,17 @@ def main() -> None:
     parser.add_argument("--priority-limit", type=int, default=140)
     parser.add_argument("--other-limit", type=int, default=50)
     parser.add_argument("--expand", action="store_true", help="在现有目录基础上翻页补充候选，不改动已下载图片")
+    parser.add_argument("--replay", default=None, help="从版本库中固定的来源清单下载，校验已有 SHA-256")
     args = parser.parse_args()
     target = (ROOT / args.output_dir).resolve()
     if ROOT not in target.parents:
         raise ValueError("下载目录必须位于项目内")
     target.mkdir(parents=True, exist_ok=True)
     catalog = target / "catalog.json"
-    if catalog.exists() and not args.expand:
+    if args.replay:
+        candidates = pd.read_csv(ROOT / args.replay, keep_default_na=False).to_dict("records")
+        print("使用版本库中固定的图片来源和哈希。", flush=True)
+    elif catalog.exists() and not args.expand:
         candidates = json.loads(catalog.read_text(encoding="utf-8"))
         print("使用已冻结的图片来源目录。", flush=True)
     else:
@@ -97,7 +108,7 @@ def main() -> None:
                     author = value("Artist")
                     description = value("ImageDescription")
                     text = page["title"] + " " + description
-                    if not re.search(r"\b" + GENERA[class_name] + r"\b", text, re.I):
+                    if not matches_class(class_name, text):
                         continue
                     if re.search(r"\b(herbarium|illustration|painting|drawing|stamp|seeds?|fruits?|pollen|dried)\b", page["title"], re.I):
                         continue
@@ -115,7 +126,9 @@ def main() -> None:
         catalog.write_text(json.dumps(candidates, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def download(row):
-        destination = ROOT / row["path"]
+        destination = (ROOT / row["path"]).resolve()
+        if target not in destination.parents:
+            raise ValueError("图片路径超出指定下载目录")
         destination.parent.mkdir(parents=True, exist_ok=True)
         if not destination.exists():
             body = get_bytes(row["image_url"])
@@ -129,7 +142,10 @@ def main() -> None:
         with Image.open(destination) as image:
             image.load()
             width, height = image.size
-        return {**row, "sha256": hashlib.sha256(destination.read_bytes()).hexdigest(), "width": width, "height": height, "review_status": "pending"}
+        digest = hashlib.sha256(destination.read_bytes()).hexdigest()
+        if row.get("sha256") and row["sha256"] != digest:
+            raise RuntimeError("服务器图片内容与固定哈希不同，禁止静默替换")
+        return {**row, "sha256": digest, "width": width, "height": height, "review_status": "pending"}
 
     downloaded, failures = [], []
     with ThreadPoolExecutor(max_workers=2) as executor:

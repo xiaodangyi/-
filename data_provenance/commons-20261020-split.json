@@ -1,0 +1,23 @@
+{
+  "source": "Wikimedia Commons",
+  "holdout_per_class": 20,
+  "supplementary_train": {
+    "roses": 45,
+    "tulips": 33
+  },
+  "external_test": {
+    "daisy": 20,
+    "dandelion": 20,
+    "roses": 20,
+    "sunflowers": 20,
+    "tulips": 20
+  },
+  "author_overlap": 0,
+  "manifest_sha256": {
+    "external_test.csv": "8f32bf96390b25c0e4a834fc6a7768f3df3764bb18ef5ad8e7a21d5c3bffa517",
+    "test.csv": "725af2f138d9b91d2856456a34de8b3c665286938101795377704cc4ce0af8f2",
+    "train.csv": "0b19264212e94b9be16f5aace661ea1ba26f088557cba5207c71a6f6ab2f528e",
+    "val.csv": "5667dff970c9a6f4bc5a9f9c91374d1fadb7a65e5d2c6df15bb692626e3f46bd"
+  },
+  "selection_policy": "外部检验在模型选择前按内容去重、人工复核和全局作者分组固定，仅在最终方案确定后评估。"
+}
